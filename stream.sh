@@ -36,7 +36,7 @@ while true; do
   # Transmisión únicamente con el logo al 35% del ancho de pantalla
   ffmpeg -re -i "$VIDEO_URL" -i logo.png \
     -filter_complex \
-    "[1:v]scale=iw*0.35:-1[logo]; \
+    "[1:v]scale=iw*0.20:-1[logo]; \
      [0:v][logo]overlay=main_w-overlay_w-20:20[v]" \
     -map "[v]" -map 0:a \
     -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
