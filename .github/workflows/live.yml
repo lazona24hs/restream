@@ -13,8 +13,8 @@ jobs:
       - name: Checkout Código
         uses: actions/checkout@v4
 
-      - name: Instalar FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Instalar FFmpeg y Fuentes
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-freefont-ttf
 
       - name: Iniciar Transmisión RTMP
         env:
