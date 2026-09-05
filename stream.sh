@@ -23,14 +23,19 @@ while true; do
   RANDOM_INDEX=$((RANDOM % ${#VIDEOS[@]}))
   VIDEO_URL="${VIDEOS[$RANDOM_INDEX]}"
 
-  echo "Transmitiendo a bajo bitrate: $VIDEO_URL"
+  # Extraer el nombre del video limpio para usarlo en el Lower Third
+  FILENAME=$(basename "$VIDEO_URL" .mp4)
+  TITLE_TEXT="AHORA: ${FILENAME^^}" # Convierte el texto a mayúsculas
 
-  # Bitrate reducido a 1500k y audio a 96k
+  echo "Transmitiendo: $VIDEO_URL ($TITLE_TEXT)"
+
+  # FFmpeg: Logo achicado + Reloj (HH:MM) + Lower Third (Nombre del video)
   ffmpeg -re -i "$VIDEO_URL" -i logo.png \
     -filter_complex \
     "[1:v]scale=80:-1[logo]; \
      [0:v][logo]overlay=main_w-overlay_w-20:20[v1]; \
-     [v1]drawtext=fontsize=36:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=8:x=20:y=20:text='%{localtime\:%H\:%M}'"[v] \
+     [v1]drawtext=fontsize=32:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=8:x=20:y=20:text='%{localtime\:%H\:%M}'[v2]; \
+     [v2]drawtext=fontsize=26:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=10:x=20:y=h-70:text='$TITLE_TEXT'"[v] \
     -map "[v]" -map 0:a \
     -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
     -pix_fmt yuv420p -g 50 -c:a aac -b:a 96k -ar 44100 \
