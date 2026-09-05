@@ -14,7 +14,7 @@ echo "Iniciando retransmisión de Radio IPTV con video de fondo..."
 # FFmpeg: Video en bucle (-stream_loop -1) + Audio Radio + Logo al 35%
 ffmpeg -stream_loop -1 -re -i fondo.mp4 -i "$AUDIO_RADIO" -i logo.png \
   -filter_complex \
-  "[2:v]scale=iw*0.35:-1[logo]; \
+  "[2:v]scale=iw*0.20:-1[logo]; \
    [0:v][logo]overlay=main_w-overlay_w-20:20[v]" \
   -map "[v]" -map 1:a \
   -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
