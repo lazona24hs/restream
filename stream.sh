@@ -16,20 +16,24 @@ VIDEOS=(
   "https://pub-f00d5d649500451fb2fe8979f4685eea.r2.dev/KAROL%20G%2C%20Judeline%2C%20rusowsky%20-%20BbY%20WOW%20(Visualizer).mp4"
 )
 
-# Descargar el logo localmente
+# Descargar logo y tipografía
 curl -s -o logo.png "$LOGO_URL"
+curl -s -o font.ttf "https://github.com/google/fonts/raw/main/ofl/roboto/Roboto-Bold.ttf"
 
-# Bucle infinito para transmitir los videos de forma aleatoria
 while true; do
-  # Seleccionar video aleatorio
   RANDOM_INDEX=$((RANDOM % ${#VIDEOS[@]}))
   VIDEO_URL="${VIDEOS[$RANDOM_INDEX]}"
 
   echo "Transmitiendo: $VIDEO_URL"
 
-  # Transmitir usando FFmpeg pegando el logo en la esquina superior derecha
+  # Transmisión con Logo ACHICADO (scale=80:-1) + Reloj sin segundos (%H:%M)
   ffmpeg -re -i "$VIDEO_URL" -i logo.png \
-    -filter_complex "[0:v][1:v]overlay=main_w-overlay_w-20:20" \
+    -filter_complex \
+    "[1:v]scale=80:-1[logo]; \
+     [0:v][logo]overlay=main_w-overlay_w-20:20[v1]; \
+     [v1]drawtext=fontfile=font.ttf:text='%{localtime\:%H\:%M}': \
+     x=20:y=20:fontsize=32:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=8"[v] \
+    -map "[v]" -map 0:a \
     -c:v libx264 -preset ultrafast -maxrate 3000k -bufsize 6000k \
     -pix_fmt yuv420p -g 50 -c:a aac -b:a 128k -ar 44100 \
     -f flv "$1/$2"
