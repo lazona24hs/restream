@@ -16,25 +16,23 @@ VIDEOS=(
   "https://pub-f00d5d649500451fb2fe8979f4685eea.r2.dev/KAROL%20G%2C%20Judeline%2C%20rusowsky%20-%20BbY%20WOW%20(Visualizer).mp4"
 )
 
-# Descargar logo y tipografía
+# Descargar logo
 curl -s -o logo.png "$LOGO_URL"
-curl -s -o font.ttf "https://github.com/google/fonts/raw/main/ofl/roboto/Roboto-Bold.ttf"
 
 while true; do
   RANDOM_INDEX=$((RANDOM % ${#VIDEOS[@]}))
   VIDEO_URL="${VIDEOS[$RANDOM_INDEX]}"
 
-  echo "Transmitiendo: $VIDEO_URL"
+  echo "Transmitiendo a bajo bitrate: $VIDEO_URL"
 
-  # Transmisión con Logo ACHICADO (scale=80:-1) + Reloj sin segundos (%H:%M)
+  # Bitrate reducido a 1500k y audio a 96k
   ffmpeg -re -i "$VIDEO_URL" -i logo.png \
     -filter_complex \
     "[1:v]scale=80:-1[logo]; \
      [0:v][logo]overlay=main_w-overlay_w-20:20[v1]; \
-     [v1]drawtext=fontfile=font.ttf:text='%{localtime\:%H\:%M}': \
-     x=20:y=20:fontsize=32:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=8"[v] \
+     [v1]drawtext=fontsize=36:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=8:x=20:y=20:text='%{localtime\:%H\:%M}'"[v] \
     -map "[v]" -map 0:a \
-    -c:v libx264 -preset ultrafast -maxrate 3000k -bufsize 6000k \
-    -pix_fmt yuv420p -g 50 -c:a aac -b:a 128k -ar 44100 \
+    -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
+    -pix_fmt yuv420p -g 50 -c:a aac -b:a 96k -ar 44100 \
     -f flv "$1/$2"
 done
