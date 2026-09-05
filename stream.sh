@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Configuración de URLs públicas de tus archivos en Cloudflare R2
 LOGO_URL="https://pub-f00d5d649500451fb2fe8979f4685eea.r2.dev/logo.png"
+
+# URL de tu publicidad alojada en GitHub
+ADS_URL="https://lazona24hs.github.io/ziptv/eradiobanner.png"
 
 # Lista de tus videos .mp4 en R2
 VIDEOS=(
@@ -16,26 +18,23 @@ VIDEOS=(
   "https://pub-f00d5d649500451fb2fe8979f4685eea.r2.dev/KAROL%20G%2C%20Judeline%2C%20rusowsky%20-%20BbY%20WOW%20(Visualizer).mp4"
 )
 
-# Descargar logo
+# Descargar las imágenes
 curl -s -o logo.png "$LOGO_URL"
+curl -s -o eradiobanner.png "$ADS_URL"
 
 while true; do
   RANDOM_INDEX=$((RANDOM % ${#VIDEOS[@]}))
   VIDEO_URL="${VIDEOS[$RANDOM_INDEX]}"
 
-  # Extraer el nombre del video limpio para usarlo en el Lower Third
-  FILENAME=$(basename "$VIDEO_URL" .mp4)
-  TITLE_TEXT="AHORA: ${FILENAME^^}" # Convierte el texto a mayúsculas
+  echo "Transmitiendo: $VIDEO_URL"
 
-  echo "Transmitiendo: $VIDEO_URL ($TITLE_TEXT)"
-
-  # FFmpeg: Logo achicado + Reloj (HH:MM) + Lower Third (Nombre del video)
-  ffmpeg -re -i "$VIDEO_URL" -i logo.png \
+  ffmpeg -re -i "$VIDEO_URL" -i logo.png -i eradiobanner.png \
     -filter_complex \
     "[1:v]scale=80:-1[logo]; \
+     [2:v]scale=200:-1[ads]; \
      [0:v][logo]overlay=main_w-overlay_w-20:20[v1]; \
-     [v1]drawtext=fontsize=32:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=8:x=20:y=20:text='%{localtime\:%H\:%M}'[v2]; \
-     [v2]drawtext=fontsize=26:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=10:x=20:y=h-70:text='$TITLE_TEXT'"[v] \
+     [v1][ads]overlay=main_w-overlay_w-20:main_h-overlay_h-20[v2]; \
+     [v2]drawtext=fontsize=32:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=8:x=20:y=20:text='%{localtime\:%H\:%M}'"[v] \
     -map "[v]" -map 0:a \
     -c:v libx264 -preset ultrafast -b:v 1500k -maxrate 1500k -bufsize 3000k \
     -pix_fmt yuv420p -g 50 -c:a aac -b:a 96k -ar 44100 \
