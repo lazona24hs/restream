@@ -2,8 +2,8 @@
 
 # Configuración de URLs
 AUDIO_RADIO="https://stream.zeno.fm/idqecp6rhbnvv"  # URL del stream de radio
-FONDO_VIDEO="https://github.com/lazona24hs/restream/raw/refs/heads/main/fondo.mp4" # Video para el fondo
-LOGO_URL="https://github.com/lazona24hs/restream/raw/refs/heads/main/logo.png"
+FONDO_VIDEO="https://pub-f00d5d649500451fb2fe8979f4685eea.r2.dev/fondo.mp4" # Video para el fondo
+LOGO_URL="https://pub-f00d5d649500451fb2fe8979f4685eea.r2.dev/logo.png"
 
 # Descargar video de fondo y logo
 curl -s -o fondo.mp4 "$FONDO_VIDEO"
